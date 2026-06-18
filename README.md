@@ -12,11 +12,57 @@ All workflows recommend `unsloth/FLUX.2-klein-9B-GGUF` for the main FLUX
 transformer, with `flux-2-klein-9b-Q4_K_M.gguf` as the default Q4
 recommendation.
 
-They also declare the small support models needed by typical FLUX runtimes:
+They also declare the support models needed by a LightFlow FLUX runner:
 
-- `ae_model`: `black-forest-labs/FLUX.1-dev` / `ae.safetensors`
-- `clip_model`: `comfyanonymous/flux_text_encoders` / `clip_l.safetensors`
-- `t5_model`: `comfyanonymous/flux_text_encoders` / `t5xxl_fp8_e4m3fn.safetensors`
+- `llm_model`: `unsloth/Qwen3-8B-GGUF` / `Qwen3-8B-Q4_K_M.gguf`
+- `vae_model`: `black-forest-labs/FLUX.2-dev` / `vae/diffusion_pytorch_model.safetensors`
+
+## Runtime Setup
+
+The FLUX workflows load synced model paths from `lfw.lock`. A LightFlow binary
+built with `--features flux-native` runs them through the native Rust backend.
+Builds without that feature can delegate sampling to an external runner by
+setting `LIGHTFLOW_FLUX_RUNNER` to an executable that accepts these arguments:
+
+```text
+--task <text-to-image|image-edit|inpaint>
+--prompt <text>
+--negative <text>
+--width <pixels>
+--height <pixels>
+--seed <integer>
+--steps <integer>
+--guidance <number>
+--cfg-scale <number>
+--strength <number>
+--image <source-png>
+--mask <mask-png>
+--output <png-path>
+--flux-model <path>
+--llm-model <path>
+--vae-model <path>
+```
+
+`--image` is required for `image-edit` and `inpaint`; `--mask` is required for
+`inpaint`. The runner must write a PNG to `--output`. This keeps LightFlow's
+workflow, lockfile, batch, and pipeline layers independent from a specific GPU
+backend, so the runner can be stable-diffusion.cpp, a diffusion-rs worker, a
+Python backend, or a future in-process runtime.
+
+Keep the runtime path zero-copy at the LightFlow layer. Model requirements
+resolve to Hugging Face cache paths in `lfw.lock`; workflows pass image, mask,
+and output paths instead of embedding image bytes; the native FLUX backend uses
+mmap for GGUF weights. Do not copy model files into this project.
+
+This project includes a stable-diffusion.cpp adapter:
+
+```bash
+export LIGHTFLOW_SD_CLI=/path/to/stable-diffusion.cpp/build/bin/sd-cli
+export LIGHTFLOW_FLUX_RUNNER="$PWD/scripts/sd-cli-flux-runner"
+```
+
+The adapter maps LightFlow's `--task`, `--image`, `--mask`, and `--strength`
+arguments to stable-diffusion.cpp `sd-cli` options.
 
 ## One-Step Model Setup
 
@@ -28,9 +74,9 @@ lfw sync lightflow.flux.image_edit --auto-model --apply
 lfw sync lightflow.flux.inpaint --auto-model --apply
 ```
 
-On a typical memory-constrained machine, `--auto-model` selects the Q4_K_M
-main model plus AE, CLIP-L, and the FP8 T5 encoder. Larger GPUs may select a
-higher main-model quantization level; explicit choices always win:
+On a typical memory-constrained machine, `--auto-model` selects the Q3/Q4 main
+model plus the Qwen3 LLM and FLUX.2 VAE. Larger GPUs may select a higher
+main-model quantization level; explicit choices always win:
 
 ```bash
 lfw sync lightflow.flux.inpaint --model flux_model=flux2-klein-q4-k-m --apply
@@ -41,7 +87,7 @@ You can override individual support models too:
 ```bash
 lfw sync lightflow.flux.inpaint \
   --model flux_model=flux2-klein-q4-k-m \
-  --model t5_model=t5xxl-fp16 \
+  --model llm_model=qwen3-8b-q4-k-m \
   --apply
 ```
 
@@ -58,6 +104,24 @@ coordinate space as `image_path`:
 
 The workflow stores mask paths as runtime inputs, not as source-controlled
 workflow data.
+
+## Pipeline Example
+
+Quote or escape the pipe token so your shell passes it to `lfw`:
+
+```bash
+lfw run lightflow.flux.text_to_image \
+  -i prompt='"a small cat photo"' \
+  -i width=768 \
+  -i height=768 \
+  -i seed=42 \
+  -i output_path='"out/cat.png"' \
+  '|' lightflow.image.invert \
+  -i output_path='"out/cat-inverted.png"'
+```
+
+`lightflow.image.invert` is provided by the LightFlow standard workflow
+collection, not by this FLUX workflow project.
 
 ## Batch Editing
 

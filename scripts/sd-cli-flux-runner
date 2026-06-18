@@ -1,0 +1,150 @@
+#!/bin/sh
+set -eu
+
+sd_cli="${LIGHTFLOW_SD_CLI:-${SD_CLI:-sd-cli}}"
+task="text-to-image"
+prompt=""
+negative=""
+width="512"
+height="512"
+seed="42"
+steps="4"
+guidance="3.5"
+cfg_scale="1.0"
+strength="0.75"
+output=""
+flux_model=""
+llm_model=""
+vae_model=""
+image=""
+mask=""
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --task)
+      shift
+      task="$1"
+      ;;
+    --prompt)
+      shift
+      prompt="$1"
+      ;;
+    --negative)
+      shift
+      negative="$1"
+      ;;
+    --width)
+      shift
+      width="$1"
+      ;;
+    --height)
+      shift
+      height="$1"
+      ;;
+    --seed)
+      shift
+      seed="$1"
+      ;;
+    --steps)
+      shift
+      steps="$1"
+      ;;
+    --guidance)
+      shift
+      guidance="$1"
+      ;;
+    --cfg-scale)
+      shift
+      cfg_scale="$1"
+      ;;
+    --strength)
+      shift
+      strength="$1"
+      ;;
+    --output)
+      shift
+      output="$1"
+      ;;
+    --image)
+      shift
+      image="$1"
+      ;;
+    --mask)
+      shift
+      mask="$1"
+      ;;
+    --flux-model)
+      shift
+      flux_model="$1"
+      ;;
+    --llm-model)
+      shift
+      llm_model="$1"
+      ;;
+    --vae-model)
+      shift
+      vae_model="$1"
+      ;;
+    *)
+      printf 'unknown LightFlow FLUX runner argument: %s\n' "$1" >&2
+      exit 2
+      ;;
+  esac
+  shift
+done
+
+if [ -z "$prompt" ] || [ -z "$output" ] || [ -z "$flux_model" ] || [ -z "$llm_model" ] || [ -z "$vae_model" ]; then
+  printf 'missing required LightFlow FLUX runner argument\n' >&2
+  exit 2
+fi
+
+case "$task" in
+  text-to-image)
+    ;;
+  image-edit)
+    if [ -z "$image" ]; then
+      printf 'image-edit requires --image\n' >&2
+      exit 2
+    fi
+    ;;
+  inpaint)
+    if [ -z "$image" ] || [ -z "$mask" ]; then
+      printf 'inpaint requires --image and --mask\n' >&2
+      exit 2
+    fi
+    ;;
+  *)
+    printf 'unsupported LightFlow FLUX task: %s\n' "$task" >&2
+    exit 2
+    ;;
+esac
+
+mkdir -p "$(dirname "$output")"
+
+set -- \
+  --diffusion-model "$flux_model" \
+  --llm "$llm_model" \
+  --vae "$vae_model" \
+  --vae-format flux2 \
+  --prompt "$prompt" \
+  --negative-prompt "$negative" \
+  --width "$width" \
+  --height "$height" \
+  --seed "$seed" \
+  --steps "$steps" \
+  --guidance "$guidance" \
+  --cfg-scale "$cfg_scale" \
+  --output "$output" \
+  --vae-tiling \
+  --mmap \
+  --offload-to-cpu
+
+if [ -n "$image" ]; then
+  set -- "$@" --init-img "$image" --strength "$strength"
+fi
+
+if [ -n "$mask" ]; then
+  set -- "$@" --mask "$mask"
+fi
+
+exec "$sd_cli" "$@"

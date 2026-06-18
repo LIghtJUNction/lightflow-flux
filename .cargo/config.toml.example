@@ -1,0 +1,5 @@
+# Copy this file to `.cargo/config.toml` for local LightFlow core development.
+# Do not commit the copied file when publishing this workflow project.
+
+[patch.crates-io]
+lightflow = { path = "../LightFlow" }

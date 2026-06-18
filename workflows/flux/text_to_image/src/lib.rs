@@ -1,28 +1,30 @@
 use lightflow::workflow::*;
 
 pub fn define() -> WorkflowSpec {
-    workflow("lightflow.flux.image_edit")
+    workflow("lightflow.flux.text_to_image")
         .version("0.1.0")
-        .name("FLUX Image Edit")
-        .description(
-            "Edit an input image with a FLUX prompt while preserving the source composition.",
-        )
-        .input("image_path", "path")
+        .name("FLUX Text To Image")
+        .description("Generate an image from a prompt with FLUX.2 klein GGUF models.")
         .input("prompt", "text")
         .input("negative", "text")
-        .input("strength", "number")
+        .input("width", "integer")
+        .input("height", "integer")
         .input("seed", "integer")
+        .input("count", "integer")
         .input("steps", "integer")
         .input("guidance", "number")
         .input("output_path", "path")
+        .input("output_template", "path")
         .input("model", "text")
         .output("image", "artifact")
         .output("image_path", "path")
-        .runtime("flux_runtime", "lightflow.image.edit")
+        .output("images", "artifact[]")
+        .output("image_paths", "path[]")
+        .runtime("flux_runtime", "lightflow.image.generate")
         .hf_model(
             "flux_model",
             "flux2-klein-q4-k-m",
-            "image-edit",
+            "text-to-image",
             "gguf",
             "unsloth/FLUX.2-klein-9B-GGUF",
             "flux-2-klein-9b-Q4_K_M.gguf",
@@ -30,7 +32,7 @@ pub fn define() -> WorkflowSpec {
         .hf_model(
             "flux_model",
             "flux2-klein-q3-k-m",
-            "image-edit",
+            "text-to-image",
             "gguf",
             "unsloth/FLUX.2-klein-9B-GGUF",
             "flux-2-klein-9b-Q3_K_M.gguf",
@@ -38,7 +40,7 @@ pub fn define() -> WorkflowSpec {
         .hf_model(
             "flux_model",
             "flux2-klein-q5-k-m",
-            "image-edit",
+            "text-to-image",
             "gguf",
             "unsloth/FLUX.2-klein-9B-GGUF",
             "flux-2-klein-9b-Q5_K_M.gguf",
@@ -46,42 +48,26 @@ pub fn define() -> WorkflowSpec {
         .hf_model(
             "flux_model",
             "flux2-klein-q8",
-            "image-edit",
+            "text-to-image",
             "gguf",
             "unsloth/FLUX.2-klein-9B-GGUF",
             "flux-2-klein-9b-Q8_0.gguf",
         )
         .hf_model(
-            "ae_model",
-            "flux-ae",
+            "llm_model",
+            "qwen3-8b-q4-k-m",
+            "language-model",
+            "gguf",
+            "unsloth/Qwen3-8B-GGUF",
+            "Qwen3-8B-Q4_K_M.gguf",
+        )
+        .hf_model(
+            "vae_model",
+            "flux2-vae",
             "vae",
             "safetensors",
-            "black-forest-labs/FLUX.1-dev",
-            "ae.safetensors",
-        )
-        .hf_model(
-            "clip_model",
-            "clip-l",
-            "text-encoder",
-            "safetensors",
-            "comfyanonymous/flux_text_encoders",
-            "clip_l.safetensors",
-        )
-        .hf_model(
-            "t5_model",
-            "t5xxl-fp8",
-            "text-encoder",
-            "safetensors",
-            "comfyanonymous/flux_text_encoders",
-            "t5xxl_fp8_e4m3fn.safetensors",
-        )
-        .hf_model(
-            "t5_model",
-            "t5xxl-fp16",
-            "text-encoder",
-            "safetensors",
-            "comfyanonymous/flux_text_encoders",
-            "t5xxl_fp16.safetensors",
+            "black-forest-labs/FLUX.2-dev",
+            "vae/diffusion_pytorch_model.safetensors",
         )
         .build()
 }
