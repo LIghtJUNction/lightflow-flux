@@ -2,7 +2,11 @@
 name = "lightflow-flux-text-to-image-router"
 version = "0.1.0"
 edition = "2024"
-publish = false
+description = "LightFlow FLUX workflow that routes text-to-image jobs to real or preview runtimes."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/lightjunction/lightflow-flux"
+keywords = ["lightflow", "workflow", "flux", "image"]
+categories = ["development-tools"]
 
 [dependencies]
 lightflow = { workspace = true }
