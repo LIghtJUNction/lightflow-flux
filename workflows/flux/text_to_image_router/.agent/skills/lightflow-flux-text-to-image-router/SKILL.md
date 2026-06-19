@@ -14,6 +14,11 @@ Use `lightflow.flux.text_to_image_router` to route generation to the real FLUX w
 - Inputs: `use_flux`, `prompt`, `negative`, `width`, `height`, `seed`, `steps`, `guidance`, `output_path`.
 - Outputs: `image`, `image_path`.
 - Branches: `lightflow.flux.text_to_image` or `lightflow.flux.preview_text_to_image`.
+- Node Schema: output ports are `image` artifacts; `use_flux` is a toggle; generation controls expose editor ranges.
+
+## Routing
+
+Use `use_flux=false` for fast local preview checks. Use `use_flux=true` only after syncing model requirements for `lightflow.flux.text_to_image`.
 
 ## Usage
 
@@ -22,4 +27,10 @@ lfw run lightflow.flux.text_to_image_router \
   -i use_flux=false \
   -i prompt='"fast preview"' \
   -i output_path='"out/router-preview.png"'
+```
+
+## Validation
+
+```bash
+lfw node test lightflow.flux.text_to_image_router
 ```

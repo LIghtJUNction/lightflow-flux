@@ -15,6 +15,11 @@ Use `lightflow.flux.text_to_image` to generate images from text prompts through 
 - Outputs: `image`, `image_path`, `images`, `image_paths`.
 - Runtime capability: `lightflow.image.generate`.
 - Model requirements: `flux_model`, `llm_model`, and `vae_model`.
+- Node Schema: image outputs are `image` artifacts; `model` is bound to `flux_model`; width, height, count, steps, and guidance include editor ranges.
+
+## Runtime
+
+Run `lfw sync lightflow.flux.text_to_image --auto-model --apply` before a real generation run. The runtime uses `flux-native` when the LightFlow binary is built with that feature, otherwise it can delegate to `LIGHTFLOW_FLUX_RUNNER`.
 
 ## Usage
 
@@ -25,4 +30,10 @@ lfw run lightflow.flux.text_to_image \
   -i width=768 \
   -i height=768 \
   -i output_path='"out/lake.png"'
+```
+
+## Validation
+
+```bash
+lfw node test lightflow.flux.text_to_image
 ```

@@ -7,6 +7,11 @@ LightFlow workflow project for FLUX.2 klein image generation and editing.
 - `lightflow.flux.text_to_image`: prompt to image.
 - `lightflow.flux.image_edit`: edit an existing image from a prompt.
 - `lightflow.flux.inpaint`: masked local repainting.
+- `lightflow.flux.preview_text_to_image`: deterministic preview fallback.
+- `lightflow.flux.text_to_image_router`: route between real FLUX and preview generation.
+
+Each workflow includes Node Schema v1 metadata for editor palettes and an
+agent skill under `.agent/skills/<skill-name>/SKILL.md`.
 
 All workflows recommend `unsloth/FLUX.2-klein-9B-GGUF` for the main FLUX
 transformer, with `flux-2-klein-9b-Q4_K_M.gguf` as the default Q4
@@ -142,4 +147,16 @@ Resume interrupted work:
 
 ```bash
 lfw batch resume <run_id>
+```
+
+## Node Conformance
+
+Validate workflow contracts before publishing changes:
+
+```bash
+lfw node test lightflow.flux.text_to_image
+lfw node test lightflow.flux.image_edit
+lfw node test lightflow.flux.inpaint
+lfw node test lightflow.flux.preview_text_to_image
+lfw node test lightflow.flux.text_to_image_router
 ```

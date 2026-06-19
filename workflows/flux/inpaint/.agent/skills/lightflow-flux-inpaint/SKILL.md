@@ -15,10 +15,17 @@ Use `lightflow.flux.inpaint` for masked local repainting with a PNG mask.
 - Outputs: `image`, `image_path`, `images`, `image_paths`.
 - Runtime capability: `lightflow.image.inpaint`.
 - Model requirements: `flux_model`, `llm_model`, and `vae_model`.
+- Node Schema: `image_path` is an `image` artifact input, `mask_path` is a `mask` artifact input, image outputs are `image` artifacts, and sampling/mask controls expose editor ranges.
 
 ## Mask Contract
 
 White mask pixels are repainted, black pixels are preserved, and gray values are soft weights. Set `invert_mask=true` to flip that convention.
+
+`feather_px` and `dilate_px` are preprocessing hints. Keep `mask_path` in the same coordinate space as `image_path`; resizing or composing masks should be done by upstream mask nodes.
+
+## Runtime
+
+Run `lfw sync lightflow.flux.inpaint --auto-model --apply` before a real inpaint run. The runtime uses `flux-native` when available, otherwise `LIGHTFLOW_FLUX_RUNNER` receives `--task inpaint`, source image path, mask path, prompt, model paths, and output path.
 
 ## Usage
 
@@ -29,4 +36,10 @@ lfw run lightflow.flux.inpaint \
   -i mask_path='"mask.png"' \
   -i prompt='"repair the scratched area"' \
   -i output_path='"out/inpaint.png"'
+```
+
+## Validation
+
+```bash
+lfw node test lightflow.flux.inpaint
 ```

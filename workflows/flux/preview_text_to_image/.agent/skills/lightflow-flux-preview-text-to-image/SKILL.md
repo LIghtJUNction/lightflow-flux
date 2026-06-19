@@ -14,6 +14,11 @@ Use `lightflow.flux.preview_text_to_image` as a deterministic preview fallback f
 - Inputs: `use_flux`, `prompt`, `negative`, `width`, `height`, `seed`, `output_path`.
 - Outputs: `image`, `image_path`.
 - Built-in runtime: `lightflow.image.generate` with engine `builtin.preview.v1`.
+- Node Schema: output ports are `image` artifacts; width and height include editor ranges; `use_flux` is kept for router compatibility.
+
+## Runtime
+
+Use this workflow for deterministic offline checks. It does not require synced FLUX models and should not be treated as quality-equivalent to the real FLUX runtime.
 
 ## Usage
 
@@ -23,4 +28,10 @@ lfw run lightflow.flux.preview_text_to_image \
   -i width=512 \
   -i height=512 \
   -i output_path='"out/preview.png"'
+```
+
+## Validation
+
+```bash
+lfw node test lightflow.flux.preview_text_to_image
 ```

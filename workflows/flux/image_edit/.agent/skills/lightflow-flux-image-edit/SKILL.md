@@ -15,6 +15,11 @@ Use `lightflow.flux.image_edit` to edit an existing image from a text prompt whi
 - Outputs: `image`, `image_path`, `images`, `image_paths`.
 - Runtime capability: `lightflow.image.edit`.
 - Model requirements: `flux_model`, `llm_model`, and `vae_model`.
+- Node Schema: `image_path` is an `image` artifact input; image outputs are `image` artifacts; `strength`, `steps`, `guidance`, and `count` expose editor ranges.
+
+## Runtime
+
+Run `lfw sync lightflow.flux.image_edit --auto-model --apply` before a real edit run. The runtime uses `flux-native` when available, otherwise `LIGHTFLOW_FLUX_RUNNER` receives `--task image-edit`, source image path, prompt, model paths, and output path.
 
 ## Usage
 
@@ -24,4 +29,10 @@ lfw run lightflow.flux.image_edit \
   -i image_path='"input.png"' \
   -i prompt='"make the lighting softer"' \
   -i output_path='"out/edit.png"'
+```
+
+## Validation
+
+```bash
+lfw node test lightflow.flux.image_edit
 ```
