@@ -19,16 +19,18 @@ Use `lightflow.flux.text_to_image` to generate images from text prompts through 
 
 ## Runtime
 
-Run `lfw sync lightflow.flux.text_to_image --auto-model --apply` before a real generation run. The runtime uses `flux-native` when the LightFlow binary is built with that feature, otherwise it can delegate to `LIGHTFLOW_FLUX_RUNNER`.
+Run `lfw sync lightflow.flux.text_to_image --auto-model --apply` before a real generation run. The preferred runtime is LightFlow built with `--features flux-native`. Native text-to-image keeps a loaded FLUX/Qwen/VAE session in the LightFlow process and reuses it for later images with the same locked model paths.
 
-This project includes a stable-diffusion.cpp adapter. Configure it before real backend runs:
+For ComfyUI-style residency across requests, use a long-lived LightFlow process such as `lfw serve`; one-shot `lfw run` commands release the native session when the process exits.
+
+This project also includes a stable-diffusion.cpp adapter for builds without `flux-native`. Configure it only when using the external fallback:
 
 ```bash
 export LIGHTFLOW_SD_CLI=/path/to/stable-diffusion.cpp/build/bin/sd-cli
 export LIGHTFLOW_FLUX_RUNNER="$PWD/scripts/sd-cli-flux-runner"
 ```
 
-The adapter validates `sd-cli`, model files, and source assets before loading models. `count > 1` currently calls the runner once per image, so smoke tests should use `count=1`, small dimensions, and `steps=1`.
+The adapter validates `sd-cli`, model files, and source assets before loading models. The external fallback is process-per-call; use native execution for performance work.
 
 ## Usage
 
@@ -44,7 +46,8 @@ lfw run lightflow.flux.text_to_image \
 Fast real-backend smoke test:
 
 ```bash
-lfw run lightflow.flux.text_to_image \
+cargo run --manifest-path ../LightFlow/Cargo.toml --features flux-native --bin lfw -- \
+  run lightflow.flux.text_to_image \
   -i prompt='"real FLUX smoke test, small red cube"' \
   -i width=128 \
   -i height=96 \

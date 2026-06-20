@@ -26,8 +26,14 @@ They also declare the support models needed by a LightFlow FLUX runner:
 
 The FLUX workflows load synced model paths from `lfw.lock`. A LightFlow binary
 built with `--features flux-native` runs them through the native Rust backend.
-Builds without that feature can delegate sampling to an external runner by
-setting `LIGHTFLOW_FLUX_RUNNER` to an executable that accepts these arguments:
+For text-to-image, that native backend keeps a loaded FLUX/Qwen/VAE session in
+the LightFlow process and reuses it for later images with the same model paths.
+Use a long-lived LightFlow process, such as `lfw serve`, when you want
+ComfyUI-style model residency across requests.
+
+Builds without `flux-native` can still delegate sampling to an external runner
+by setting `LIGHTFLOW_FLUX_RUNNER` to an executable that accepts these
+arguments:
 
 ```text
 --task <text-to-image|image-edit|inpaint>
@@ -59,7 +65,8 @@ resolve to Hugging Face cache paths in `lfw.lock`; workflows pass image, mask,
 and output paths instead of embedding image bytes; the native FLUX backend uses
 mmap for GGUF weights. Do not copy model files into this project.
 
-This project includes a stable-diffusion.cpp adapter:
+This project includes a stable-diffusion.cpp adapter for fallback and
+compatibility:
 
 ```bash
 export LIGHTFLOW_SD_CLI=/path/to/stable-diffusion.cpp/build/bin/sd-cli
@@ -74,7 +81,8 @@ starting the expensive model load.
 Run a small real-backend smoke test after syncing models:
 
 ```bash
-lfw run lightflow.flux.text_to_image \
+cargo run --manifest-path ../LightFlow/Cargo.toml --features flux-native --bin lfw -- \
+  run lightflow.flux.text_to_image \
   -i prompt='"real FLUX smoke test, small red cube"' \
   -i width=128 \
   -i height=96 \
@@ -96,9 +104,9 @@ lfw run lightflow.flux.text_to_image_router \
 ```
 
 For router checks against the real backend, set `use_flux=true` and keep
-`steps=1` for smoke tests. Real FLUX runs currently invoke the external runner
-once per generated image, so `count > 1` is serial and reloads models for each
-image unless the chosen runner implements its own persistence or batching.
+`steps=1` for smoke tests. Native text-to-image reuses its loaded model session
+inside the process. The external fallback runner is still process-per-call and
+should be treated as a compatibility path, not the performance path.
 
 ## One-Step Model Setup
 

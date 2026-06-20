@@ -20,14 +20,16 @@ Use `lightflow.flux.text_to_image_router` to route generation to the real FLUX w
 
 Use `use_flux=false` for fast local preview checks. Use `use_flux=true` only after syncing model requirements for `lightflow.flux.text_to_image`.
 
-When `use_flux=true` and LightFlow is not built with `flux-native`, configure the external runner first:
+The preferred real backend is LightFlow built with `--features flux-native`. Native text-to-image keeps a loaded FLUX/Qwen/VAE session in the LightFlow process, so long-lived processes such as `lfw serve` can keep models resident across requests.
+
+When `use_flux=true` and LightFlow is not built with `flux-native`, configure the external fallback runner first:
 
 ```bash
 export LIGHTFLOW_SD_CLI=/path/to/stable-diffusion.cpp/build/bin/sd-cli
 export LIGHTFLOW_FLUX_RUNNER="$PWD/scripts/sd-cli-flux-runner"
 ```
 
-Keep router smoke tests small. Real FLUX generation loads large model files, and multi-image generation in `lightflow.flux.text_to_image` is serial unless the runner provides persistence or batching.
+Keep router smoke tests small. Native execution is the performance path; the external fallback is process-per-call and should be used for compatibility checks.
 
 ## Usage
 
@@ -41,7 +43,8 @@ lfw run lightflow.flux.text_to_image_router \
 Real backend smoke test:
 
 ```bash
-lfw run lightflow.flux.text_to_image_router \
+cargo run --manifest-path ../LightFlow/Cargo.toml --features flux-native --bin lfw -- \
+  run lightflow.flux.text_to_image_router \
   -i use_flux=true \
   -i prompt='"router real FLUX smoke test, blue sphere"' \
   -i width=128 \
