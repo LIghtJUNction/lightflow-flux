@@ -19,6 +19,39 @@ vae_model=""
 image=""
 mask=""
 
+fail() {
+  printf '%s\n' "$1" >&2
+  exit "${2:-2}"
+}
+
+require_file() {
+  label="$1"
+  path="$2"
+  if [ ! -f "$path" ]; then
+    fail "LightFlow FLUX runner could not find $label: $path" 2
+  fi
+  if [ ! -r "$path" ]; then
+    fail "LightFlow FLUX runner cannot read $label: $path" 2
+  fi
+}
+
+require_sd_cli() {
+  case "$sd_cli" in
+    */*)
+      if [ ! -x "$sd_cli" ]; then
+        fail "LightFlow FLUX runner could not execute sd-cli at: $sd_cli
+Set LIGHTFLOW_SD_CLI=/path/to/stable-diffusion.cpp/build/bin/sd-cli or make the file executable." 2
+      fi
+      ;;
+    *)
+      if ! command -v "$sd_cli" >/dev/null 2>&1; then
+        fail "LightFlow FLUX runner could not find sd-cli on PATH.
+Set LIGHTFLOW_SD_CLI=/path/to/stable-diffusion.cpp/build/bin/sd-cli or put sd-cli on PATH." 2
+      fi
+      ;;
+  esac
+}
+
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --task)
@@ -94,8 +127,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 if [ -z "$prompt" ] || [ -z "$output" ] || [ -z "$flux_model" ] || [ -z "$llm_model" ] || [ -z "$vae_model" ]; then
-  printf 'missing required LightFlow FLUX runner argument\n' >&2
-  exit 2
+  fail 'missing required LightFlow FLUX runner argument' 2
 fi
 
 case "$task" in
@@ -103,21 +135,31 @@ case "$task" in
     ;;
   image-edit)
     if [ -z "$image" ]; then
-      printf 'image-edit requires --image\n' >&2
-      exit 2
+      fail 'image-edit requires --image' 2
     fi
     ;;
   inpaint)
     if [ -z "$image" ] || [ -z "$mask" ]; then
-      printf 'inpaint requires --image and --mask\n' >&2
-      exit 2
+      fail 'inpaint requires --image and --mask' 2
     fi
     ;;
   *)
-    printf 'unsupported LightFlow FLUX task: %s\n' "$task" >&2
-    exit 2
+    fail "unsupported LightFlow FLUX task: $task" 2
     ;;
 esac
+
+require_sd_cli
+require_file "FLUX model" "$flux_model"
+require_file "LLM model" "$llm_model"
+require_file "VAE model" "$vae_model"
+
+if [ -n "$image" ]; then
+  require_file "input image" "$image"
+fi
+
+if [ -n "$mask" ]; then
+  require_file "input mask" "$mask"
+fi
 
 mkdir -p "$(dirname "$output")"
 

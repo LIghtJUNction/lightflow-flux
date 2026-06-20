@@ -67,7 +67,38 @@ export LIGHTFLOW_FLUX_RUNNER="$PWD/scripts/sd-cli-flux-runner"
 ```
 
 The adapter maps LightFlow's `--task`, `--image`, `--mask`, and `--strength`
-arguments to stable-diffusion.cpp `sd-cli` options.
+arguments to stable-diffusion.cpp `sd-cli` options. It also checks that
+`sd-cli`, the synced model files, and any source image or mask exist before
+starting the expensive model load.
+
+Run a small real-backend smoke test after syncing models:
+
+```bash
+lfw run lightflow.flux.text_to_image \
+  -i prompt='"real FLUX smoke test, small red cube"' \
+  -i width=128 \
+  -i height=96 \
+  -i seed=11 \
+  -i steps=1 \
+  -i guidance=1.0 \
+  -i output_path='"/tmp/lightflow-flux-test/runner-real.png"'
+```
+
+For fast wiring checks that do not load FLUX models, use the preview branch:
+
+```bash
+lfw run lightflow.flux.text_to_image_router \
+  -i use_flux=false \
+  -i prompt='"router preview smoke test"' \
+  -i width=128 \
+  -i height=96 \
+  -i output_path='"/tmp/lightflow-flux-test/router-preview.png"'
+```
+
+For router checks against the real backend, set `use_flux=true` and keep
+`steps=1` for smoke tests. Real FLUX runs currently invoke the external runner
+once per generated image, so `count > 1` is serial and reloads models for each
+image unless the chosen runner implements its own persistence or batching.
 
 ## One-Step Model Setup
 

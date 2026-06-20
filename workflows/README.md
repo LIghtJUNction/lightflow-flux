@@ -7,3 +7,5 @@ The `flux` category currently provides:
 - `lightflow.flux.text_to_image`
 - `lightflow.flux.image_edit`
 - `lightflow.flux.inpaint`
+- `lightflow.flux.preview_text_to_image`
+- `lightflow.flux.text_to_image_router`
