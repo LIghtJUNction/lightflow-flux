@@ -28,6 +28,9 @@ The FLUX workflows load synced model paths from `lfw.lock`. A LightFlow binary
 built with `--features flux-native` runs them through the native Rust backend.
 For text-to-image, that native backend keeps a loaded FLUX/Qwen/VAE session in
 the LightFlow process and reuses it for later images with the same model paths.
+When `count > 1`, LightFlow sends text-to-image outputs to the native backend
+as one batch request and then writes each generated image to the requested
+output path.
 Use a long-lived LightFlow process, such as `lfw serve`, when you want
 ComfyUI-style model residency across requests.
 
@@ -105,8 +108,9 @@ lfw run lightflow.flux.text_to_image_router \
 
 For router checks against the real backend, set `use_flux=true` and keep
 `steps=1` for smoke tests. Native text-to-image reuses its loaded model session
-inside the process. The external fallback runner is still process-per-call and
-should be treated as a compatibility path, not the performance path.
+inside the process and batches multi-image requests. The external fallback
+runner is still process-per-call and should be treated as a compatibility path,
+not the performance path.
 
 ## One-Step Model Setup
 

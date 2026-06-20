@@ -19,7 +19,7 @@ Use `lightflow.flux.text_to_image` to generate images from text prompts through 
 
 ## Runtime
 
-Run `lfw sync lightflow.flux.text_to_image --auto-model --apply` before a real generation run. The preferred runtime is LightFlow built with `--features flux-native`. Native text-to-image keeps a loaded FLUX/Qwen/VAE session in the LightFlow process and reuses it for later images with the same locked model paths.
+Run `lfw sync lightflow.flux.text_to_image --auto-model --apply` before a real generation run. The preferred runtime is LightFlow built with `--features flux-native`. Native text-to-image keeps a loaded FLUX/Qwen/VAE session in the LightFlow process, reuses it for later images with the same locked model paths, and sends `count > 1` requests as one native batch call.
 
 For ComfyUI-style residency across requests, use a long-lived LightFlow process such as `lfw serve`; one-shot `lfw run` commands release the native session when the process exits.
 
