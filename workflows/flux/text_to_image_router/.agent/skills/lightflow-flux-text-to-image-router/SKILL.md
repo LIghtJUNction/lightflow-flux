@@ -1,24 +1,24 @@
 ---
 name: LightFlow FLUX Text To Image Router
-description: Use this skill when working with the lightflow.flux.text_to_image_router workflow or routing image generation between real FLUX and preview runtimes.
+description: Use this skill when working with the lightflow.flux_text_to_image_router workflow or routing image generation between real FLUX and preview runtimes.
 version: 0.1.0
 ---
 
 # LightFlow FLUX Text To Image Router
 
-Use `lightflow.flux.text_to_image_router` to route generation to the real FLUX workflow when `use_flux=true`, or to the deterministic preview workflow otherwise.
+Use `lightflow.flux_text_to_image_router` to route generation to the real FLUX workflow when `use_flux=true`, or to the deterministic preview workflow otherwise.
 
 ## Workflow
 
-- Workflow id: `lightflow.flux.text_to_image_router`
+- Workflow id: `lightflow.flux_text_to_image_router`
 - Inputs: `use_flux`, `prompt`, `negative`, `width`, `height`, `seed`, `steps`, `guidance`, `output_path`.
 - Outputs: `image`, `image_path`.
-- Branches: `lightflow.flux.text_to_image` or `lightflow.flux.preview_text_to_image`.
+- Branches: `lightflow.flux_text_to_image` or `lightflow.flux_preview_text_to_image`.
 - Node Schema: output ports are `image` artifacts; `use_flux` is a toggle; generation controls expose editor ranges.
 
 ## Routing
 
-Use `use_flux=false` for fast local preview checks. Use `use_flux=true` only after syncing model requirements for `lightflow.flux.text_to_image`.
+Use `use_flux=false` for fast local preview checks. Use `use_flux=true` only after syncing model requirements for `lightflow.flux_text_to_image`.
 
 The preferred real backend is LightFlow built with `--features flux-native`. Native text-to-image keeps a loaded FLUX/Qwen/VAE session in the LightFlow process, so long-lived processes such as `lfw serve` can keep models resident across requests.
 
@@ -34,7 +34,7 @@ Keep router smoke tests small. Native execution is the performance path; the ext
 ## Usage
 
 ```bash
-lfw run lightflow.flux.text_to_image_router \
+lfw run lightflow.flux_text_to_image_router \
   -i use_flux=false \
   -i prompt='"fast preview"' \
   -i output_path='"out/router-preview.png"'
@@ -44,7 +44,7 @@ Real backend smoke test:
 
 ```bash
 cargo run --manifest-path ../LightFlow/Cargo.toml --features flux-native --bin lfw -- \
-  run lightflow.flux.text_to_image_router \
+  run lightflow.flux_text_to_image_router \
   -i use_flux=true \
   -i prompt='"router real FLUX smoke test, blue sphere"' \
   -i width=128 \
@@ -58,14 +58,14 @@ cargo run --manifest-path ../LightFlow/Cargo.toml --features flux-native --bin l
 ## Validation
 
 ```bash
-lfw node test lightflow.flux.text_to_image_router
+lfw node test lightflow.flux_text_to_image_router
 ```
 ## API Usage
 
 Start `lfw serve`, then call the workflow through the shared HTTP run contract. Adjust `inputs` to match the workflow contract above.
 
 ```bash
-curl -sS -X POST http://127.0.0.1:5174/workflows/lightflow.flux.text_to_image_router/run \
+curl -sS -X POST http://127.0.0.1:5174/workflows/lightflow.flux_text_to_image_router/run \
   -H 'content-type: application/json' \
   -d '{"inputs":{}}'
 ```

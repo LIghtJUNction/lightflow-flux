@@ -4,11 +4,11 @@ LightFlow workflow project for FLUX.2 klein image generation and editing.
 
 ## Workflows
 
-- `lightflow.flux.text_to_image`: prompt to image.
-- `lightflow.flux.image_edit`: edit an existing image from a prompt.
-- `lightflow.flux.inpaint`: masked local repainting.
-- `lightflow.flux.preview_text_to_image`: deterministic preview fallback.
-- `lightflow.flux.text_to_image_router`: route between real FLUX and preview generation.
+- `lightflow.flux_text_to_image`: prompt to image.
+- `lightflow.flux_image_edit`: edit an existing image from a prompt.
+- `lightflow.flux_inpaint`: masked local repainting.
+- `lightflow.flux_preview_text_to_image`: deterministic preview fallback.
+- `lightflow.flux_text_to_image_router`: route between real FLUX and preview generation.
 
 Each workflow includes Node Schema v1 metadata for editor palettes and an
 agent skill under `.agent/skills/<skill-name>/SKILL.md`.
@@ -85,7 +85,7 @@ Run a small real-backend smoke test after syncing models:
 
 ```bash
 cargo run --manifest-path ../LightFlow/Cargo.toml --features flux-native --bin lfw -- \
-  run lightflow.flux.text_to_image \
+  run lightflow.flux_text_to_image \
   -i prompt='"real FLUX smoke test, small red cube"' \
   -i width=128 \
   -i height=96 \
@@ -98,7 +98,7 @@ cargo run --manifest-path ../LightFlow/Cargo.toml --features flux-native --bin l
 For fast wiring checks that do not load FLUX models, use the preview branch:
 
 ```bash
-lfw run lightflow.flux.text_to_image_router \
+lfw run lightflow.flux_text_to_image_router \
   -i use_flux=false \
   -i prompt='"router preview smoke test"' \
   -i width=128 \
@@ -117,9 +117,9 @@ not the performance path.
 Use hardware-aware selection and download:
 
 ```bash
-lfw sync lightflow.flux.text_to_image --auto-model --apply
-lfw sync lightflow.flux.image_edit --auto-model --apply
-lfw sync lightflow.flux.inpaint --auto-model --apply
+lfw sync lightflow.flux_text_to_image --auto-model --apply
+lfw sync lightflow.flux_image_edit --auto-model --apply
+lfw sync lightflow.flux_inpaint --auto-model --apply
 ```
 
 On a typical memory-constrained machine, `--auto-model` selects the Q3/Q4 main
@@ -127,13 +127,13 @@ model plus the Qwen3 LLM and FLUX.2 VAE. Larger GPUs may select a higher
 main-model quantization level; explicit choices always win:
 
 ```bash
-lfw sync lightflow.flux.inpaint --model flux_model=flux2-klein-q4-k-m --apply
+lfw sync lightflow.flux_inpaint --model flux_model=flux2-klein-q4-k-m --apply
 ```
 
 You can override individual support models too:
 
 ```bash
-lfw sync lightflow.flux.inpaint \
+lfw sync lightflow.flux_inpaint \
   --model flux_model=flux2-klein-q4-k-m \
   --model llm_model=qwen3-8b-q4-k-m \
   --apply
@@ -141,7 +141,7 @@ lfw sync lightflow.flux.inpaint \
 
 ## Mask Contract
 
-`lightflow.flux.inpaint` expects `mask_path` to point at a PNG mask in the same
+`lightflow.flux_inpaint` expects `mask_path` to point at a PNG mask in the same
 coordinate space as `image_path`:
 
 - white pixels are repainted
@@ -158,17 +158,17 @@ workflow data.
 Quote or escape the pipe token so your shell passes it to `lfw`:
 
 ```bash
-lfw run lightflow.flux.text_to_image \
+lfw run lightflow.flux_text_to_image \
   -i prompt='"a small cat photo"' \
   -i width=768 \
   -i height=768 \
   -i seed=42 \
   -i output_path='"out/cat.png"' \
-  '|' lightflow.image.invert \
+  '|' lightflow.image_invert \
   -i output_path='"out/cat-inverted.png"'
 ```
 
-`lightflow.image.invert` is provided by the LightFlow standard workflow
+`lightflow.image_invert` is provided by the LightFlow standard workflow
 collection, not by this FLUX workflow project.
 
 ## Batch Editing
@@ -176,8 +176,8 @@ collection, not by this FLUX workflow project.
 For many images, write a JSONL queue:
 
 ```json
-{"id":"image-001","workflow_id":"lightflow.flux.inpaint","inputs":{"image_path":"input/001.png","mask_path":"masks/001.png","prompt":"replace the scratched area","output_path":"out/001.png"}}
-{"id":"image-002","workflow_id":"lightflow.flux.inpaint","inputs":{"image_path":"input/002.png","mask_path":"masks/002.png","prompt":"replace the scratched area","output_path":"out/002.png"}}
+{"id":"image-001","workflow_id":"lightflow.flux_inpaint","inputs":{"image_path":"input/001.png","mask_path":"masks/001.png","prompt":"replace the scratched area","output_path":"out/001.png"}}
+{"id":"image-002","workflow_id":"lightflow.flux_inpaint","inputs":{"image_path":"input/002.png","mask_path":"masks/002.png","prompt":"replace the scratched area","output_path":"out/002.png"}}
 ```
 
 Then run with conservative GPU concurrency:
@@ -197,9 +197,9 @@ lfw batch resume <run_id>
 Validate workflow contracts before publishing changes:
 
 ```bash
-lfw node test lightflow.flux.text_to_image
-lfw node test lightflow.flux.image_edit
-lfw node test lightflow.flux.inpaint
-lfw node test lightflow.flux.preview_text_to_image
-lfw node test lightflow.flux.text_to_image_router
+lfw node test lightflow.flux_text_to_image
+lfw node test lightflow.flux_image_edit
+lfw node test lightflow.flux_inpaint
+lfw node test lightflow.flux_preview_text_to_image
+lfw node test lightflow.flux_text_to_image_router
 ```

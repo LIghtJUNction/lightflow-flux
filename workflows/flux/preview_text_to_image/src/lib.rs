@@ -1,8 +1,7 @@
-use lightflow::workflow::*;
+use lightflow::preload::*;
 
 pub fn define() -> WorkflowSpec {
-    workflow("lightflow.flux.preview_text_to_image")
-        .version("0.1.0")
+    workflow!()
         .name("FLUX Preview Text To Image")
         .description("Deterministic preview fallback for testing FLUX text-to-image pipelines.")
         .input("use_flux", "boolean")

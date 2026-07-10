@@ -1,8 +1,7 @@
-use lightflow::workflow::*;
+use lightflow::preload::*;
 
 pub fn define() -> WorkflowSpec {
-    workflow("lightflow.flux.text_to_image_router")
-        .version("0.1.0")
+    workflow!()
         .name("FLUX Text To Image Router")
         .description(
             "Route text-to-image generation to the real FLUX runtime or a preview fallback.",
@@ -78,8 +77,8 @@ pub fn define() -> WorkflowSpec {
             "route",
             "use_flux",
             true,
-            "lightflow.flux.text_to_image",
-            "lightflow.flux.preview_text_to_image",
+            "lightflow.flux_text_to_image",
+            "lightflow.flux_preview_text_to_image",
         )
         .build()
 }

@@ -1,8 +1,7 @@
-use lightflow::workflow::*;
+use lightflow::preload::*;
 
 pub fn define() -> WorkflowSpec {
-    workflow("lightflow.flux.text_to_image")
-        .version("0.1.0")
+    workflow!()
         .name("FLUX Text To Image")
         .description("Generate an image from a prompt with FLUX.2 klein GGUF models.")
         .input("prompt", "text")

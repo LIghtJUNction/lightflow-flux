@@ -1,8 +1,7 @@
-use lightflow::workflow::*;
+use lightflow::preload::*;
 
 pub fn define() -> WorkflowSpec {
-    workflow("lightflow.flux.inpaint")
-        .version("0.1.0")
+    workflow!()
         .name("FLUX Inpaint")
         .description("Perform masked local repainting with a canonical black/white mask image.")
         .input("image_path", "path")

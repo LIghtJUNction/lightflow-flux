@@ -1,8 +1,7 @@
-use lightflow::workflow::*;
+use lightflow::preload::*;
 
 pub fn define() -> WorkflowSpec {
-    workflow("lightflow.flux.image_edit")
-        .version("0.1.0")
+    workflow!()
         .name("FLUX Image Edit")
         .description(
             "Edit an input image with a FLUX prompt while preserving the source composition.",

@@ -4,8 +4,8 @@ Workflow crates live at `<category>/<short-name>/src/lib.rs`.
 
 The `flux` category currently provides:
 
-- `lightflow.flux.text_to_image`
-- `lightflow.flux.image_edit`
-- `lightflow.flux.inpaint`
-- `lightflow.flux.preview_text_to_image`
-- `lightflow.flux.text_to_image_router`
+- `lightflow.flux_text_to_image`
+- `lightflow.flux_image_edit`
+- `lightflow.flux_inpaint`
+- `lightflow.flux_preview_text_to_image`
+- `lightflow.flux_text_to_image_router`

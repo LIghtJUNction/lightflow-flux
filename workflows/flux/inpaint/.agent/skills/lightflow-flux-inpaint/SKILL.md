@@ -1,16 +1,16 @@
 ---
 name: LightFlow FLUX Inpaint
-description: Use this skill when working with the lightflow.flux.inpaint workflow, masks, local repainting, or FLUX inpaint model sync.
+description: Use this skill when working with the lightflow.flux_inpaint workflow, masks, local repainting, or FLUX inpaint model sync.
 version: 0.1.0
 ---
 
 # LightFlow FLUX Inpaint
 
-Use `lightflow.flux.inpaint` for masked local repainting with a PNG mask.
+Use `lightflow.flux_inpaint` for masked local repainting with a PNG mask.
 
 ## Workflow
 
-- Workflow id: `lightflow.flux.inpaint`
+- Workflow id: `lightflow.flux_inpaint`
 - Inputs: `image_path`, `mask_path`, `prompt`, `negative`, `strength`, `feather_px`, `dilate_px`, `invert_mask`, `seed`, `count`, `steps`, `guidance`, `output_path`, `output_template`, `model`.
 - Outputs: `image`, `image_path`, `images`, `image_paths`.
 - Runtime capability: `lightflow.image.inpaint`.
@@ -25,13 +25,13 @@ White mask pixels are repainted, black pixels are preserved, and gray values are
 
 ## Runtime
 
-Run `lfw sync lightflow.flux.inpaint --auto-model --apply` before a real inpaint run. The runtime uses `flux-native` when available, otherwise `LIGHTFLOW_FLUX_RUNNER` receives `--task inpaint`, source image path, mask path, prompt, model paths, and output path.
+Run `lfw sync lightflow.flux_inpaint --auto-model --apply` before a real inpaint run. The runtime uses `flux-native` when available, otherwise `LIGHTFLOW_FLUX_RUNNER` receives `--task inpaint`, source image path, mask path, prompt, model paths, and output path.
 
 ## Usage
 
 ```bash
-lfw sync lightflow.flux.inpaint --auto-model --apply
-lfw run lightflow.flux.inpaint \
+lfw sync lightflow.flux_inpaint --auto-model --apply
+lfw run lightflow.flux_inpaint \
   -i image_path='"input.png"' \
   -i mask_path='"mask.png"' \
   -i prompt='"repair the scratched area"' \
@@ -41,14 +41,14 @@ lfw run lightflow.flux.inpaint \
 ## Validation
 
 ```bash
-lfw node test lightflow.flux.inpaint
+lfw node test lightflow.flux_inpaint
 ```
 ## API Usage
 
 Start `lfw serve`, then call the workflow through the shared HTTP run contract. Adjust `inputs` to match the workflow contract above.
 
 ```bash
-curl -sS -X POST http://127.0.0.1:5174/workflows/lightflow.flux.inpaint/run \
+curl -sS -X POST http://127.0.0.1:5174/workflows/lightflow.flux_inpaint/run \
   -H 'content-type: application/json' \
   -d '{"inputs":{}}'
 ```
