@@ -1,6 +1,6 @@
 # Workflows
 
-Workflow crates live at `<category>/<short-name>/src/lib.rs`.
+Workflow crates live at `<short-name>/src/lib.rs`.
 
 The `flux` category currently provides:
 
