@@ -8,22 +8,33 @@ version: 0.1.0
 
 Use `lightflow.flux_text_to_image` to generate images from text prompts through the LightFlow FLUX runtime.
 
+The source definition now uses the canonical
+`workflow! { name, description, ... }` form. This source-only DSL migration
+does not change execution behavior or the input/output contract below.
+
 ## Workflow
 
 - Workflow id: `lightflow.flux_text_to_image`
 - Inputs: `prompt`, `negative`, `width`, `height`, `seed`, `count`, `steps`, `guidance`, `output_path`, `output_template`, `model`.
 - Outputs: `image`, `image_path`, `images`, `image_paths`.
 - Runtime capability: `lightflow.image.generate`.
+- Runtime engine: `runner.v1`.
 - Model requirements: `flux_model`, `llm_model`, and `vae_model`.
 - Node Schema: image outputs are `image` artifacts; `model` is bound to `flux_model`; width, height, count, steps, and guidance include editor ranges.
 
 ## Runtime
 
-Run `lfw sync lightflow.flux_text_to_image --auto-model --apply` before a real generation run. The preferred runtime is LightFlow built with `--features flux-native`. Native text-to-image keeps a loaded FLUX/Qwen/VAE session in the LightFlow process, reuses it for later images with the same locked model paths, and sends `count > 1` requests as one native batch call.
+Run `lfw sync lightflow.flux_text_to_image --auto-model --apply` before a real
+generation run. Execution belongs to the published workflow package and its
+`lightflow-flux-runtime` dependency; the LightFlow host has no FLUX business
+implementation. Set `LIGHTFLOW_FLUX_BACKEND=native` for the package-owned CPU
+backend. The workflow crate enables its validated Cargo `native` feature; the
+root `lfw` binary needs no FLUX feature. Models come from verified
+`runner.v1` bindings resolved from `lfw.lock`. Each call is a separate runner
+process, so cross-request residency is not guaranteed.
 
-For ComfyUI-style residency across requests, use a long-lived LightFlow process such as `lfw serve`; one-shot `lfw run` commands release the native session when the process exits.
-
-This project also includes a stable-diffusion.cpp adapter for builds without `flux-native`. Configure it only when using the external fallback:
+This project also includes a stable-diffusion.cpp adapter. Configure it with
+`LIGHTFLOW_FLUX_BACKEND=external`:
 
 ```bash
 export LIGHTFLOW_SD_CLI=/path/to/stable-diffusion.cpp/build/bin/sd-cli
@@ -46,16 +57,17 @@ lfw run lightflow.flux_text_to_image \
 Fast real-backend smoke test:
 
 ```bash
-cargo run --manifest-path ../LightFlow/Cargo.toml --features flux-native --bin lfw -- \
-  run lightflow.flux_text_to_image \
+lfw run lightflow.flux_text_to_image \
   -i prompt='"real FLUX smoke test, small red cube"' \
   -i width=128 \
   -i height=96 \
   -i seed=11 \
   -i steps=1 \
   -i guidance=1.0 \
-  -i output_path='"/tmp/lightflow-flux-test/runner-real.png"'
+  -i output_path='"out/runner-real.png"'
 ```
+
+Outputs and expanded templates must be unique project-relative paths.
 
 ## Validation
 
