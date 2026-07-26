@@ -2,6 +2,8 @@ use lightflow::preload::*;
 
 pub fn define() -> WorkflowSpec {
     workflow! {
+        name: "FLUX Text To Image Router",
+        description: "Route text-to-image generation to the real FLUX runtime or a preview fallback.",
         input "use_flux": "boolean" {
             description: "Route to real FLUX when true, or deterministic preview when false.",
             required: false,
@@ -66,8 +68,6 @@ pub fn define() -> WorkflowSpec {
             artifact: "image",
         }
     }
-    .name("FLUX Text To Image Router")
-    .description("Route text-to-image generation to the real FLUX runtime or a preview fallback.")
     .if_node(
         "route",
         "use_flux",

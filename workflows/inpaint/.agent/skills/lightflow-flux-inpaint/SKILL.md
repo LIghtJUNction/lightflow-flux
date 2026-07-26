@@ -8,12 +8,17 @@ version: 0.1.0
 
 Use `lightflow.flux_inpaint` for masked local repainting with a PNG mask.
 
+The source definition now uses the canonical
+`workflow! { name, description, ... }` form. This source-only DSL migration
+does not change execution behavior or the input/output contract below.
+
 ## Workflow
 
 - Workflow id: `lightflow.flux_inpaint`
 - Inputs: `image_path`, `mask_path`, `prompt`, `negative`, `strength`, `feather_px`, `dilate_px`, `invert_mask`, `seed`, `count`, `steps`, `guidance`, `output_path`, `output_template`, `model`.
 - Outputs: `image`, `image_path`, `images`, `image_paths`.
 - Runtime capability: `lightflow.image.inpaint`.
+- Runtime engine: `runner.v1`.
 - Model requirements: `flux_model`, `llm_model`, and `vae_model`.
 - Node Schema: `image_path` is an `image` artifact input, `mask_path` is a `mask` artifact input, image outputs are `image` artifacts, and sampling/mask controls expose editor ranges.
 
@@ -25,7 +30,11 @@ White mask pixels are repainted, black pixels are preserved, and gray values are
 
 ## Runtime
 
-Run `lfw sync lightflow.flux_inpaint --auto-model --apply` before a real inpaint run. The runtime uses `flux-native` when available, otherwise `LIGHTFLOW_FLUX_RUNNER` receives `--task inpaint`, source image path, mask path, prompt, model paths, and output path.
+Run `lfw sync lightflow.flux_inpaint --auto-model --apply` before a real
+inpaint run. The workflow package owns request validation, backend invocation,
+PNG verification, artifacts, and replay identity. Configure
+`LIGHTFLOW_FLUX_RUNNER` and the three `LIGHTFLOW_FLUX_*_MODEL_PATH` variables;
+without them execution fails closed.
 
 ## Usage
 

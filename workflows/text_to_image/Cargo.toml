@@ -8,5 +8,18 @@ repository = "https://github.com/lightjunction/lightflow-flux"
 keywords = ["lightflow", "workflow", "flux", "image"]
 categories = ["development-tools"]
 
+[package.metadata.lightflow]
+runner = "lightflow-flux-text-to-image-runner"
+runner-features = ["native"]
+
+[features]
+native = ["lightflow-flux-runtime/native"]
+native-test-seam = ["lightflow-flux-runtime/native-test-seam"]
+
+[[bin]]
+name = "lightflow-flux-text-to-image-runner"
+path = "src/bin/runner.rs"
+
 [dependencies]
 lightflow = { workspace = true }
+lightflow-flux-runtime = { workspace = true }
