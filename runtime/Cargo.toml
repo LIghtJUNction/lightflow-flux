@@ -1,0 +1,26 @@
+[package]
+name = "lightflow-flux-runtime"
+version = "0.1.0"
+edition = "2024"
+description = "Package-owned FLUX execution adapter for LightFlow workflows."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/lightjunction/lightflow-flux"
+keywords = ["lightflow", "flux", "image"]
+categories = ["multimedia::images", "development-tools"]
+
+[features]
+default = []
+native = ["dep:diffusion-rs", "dep:diffusion-rs-sys"]
+native-cuda = ["native", "diffusion-rs/cuda"]
+native-vulkan = ["native", "diffusion-rs/vulkan"]
+# Test-only native success seam. This exercises the production runner, FFI
+# image ownership, PNG encoding, and atomic output path without claiming model
+# inference. It is never enabled by workflow package metadata.
+native-test-seam = ["native"]
+
+[dependencies]
+diffusion-rs = { package = "lightflow-flux-native", version = "0.1.0", path = "../native/api", optional = true, default-features = false }
+diffusion-rs-sys = { package = "lightflow-flux-native-sys", version = "0.1.0", path = "../native/sys", optional = true }
+libc = "0.2.186"
+lightflow = { workspace = true }
+png = { workspace = true }

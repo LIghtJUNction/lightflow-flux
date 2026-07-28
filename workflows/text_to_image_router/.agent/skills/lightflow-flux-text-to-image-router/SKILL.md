@@ -8,6 +8,10 @@ version: 0.1.0
 
 Use `lightflow.flux_text_to_image_router` to route generation to the real FLUX workflow when `use_flux=true`, or to the deterministic preview workflow otherwise.
 
+The source definition now uses the canonical
+`workflow! { name, description, ... }` form. This source-only DSL migration
+does not change execution behavior or the input/output contract below.
+
 ## Workflow
 
 - Workflow id: `lightflow.flux_text_to_image_router`
@@ -20,9 +24,11 @@ Use `lightflow.flux_text_to_image_router` to route generation to the real FLUX w
 
 Use `use_flux=false` for fast local preview checks. Use `use_flux=true` only after syncing model requirements for `lightflow.flux_text_to_image`.
 
-The preferred real backend is LightFlow built with `--features flux-native`. Native text-to-image keeps a loaded FLUX/Qwen/VAE session in the LightFlow process, so long-lived processes such as `lfw serve` can keep models resident across requests.
+When `use_flux=true`, the selected production leaf enables its own validated
+Cargo `native` feature. The root LightFlow binary needs no FLUX feature and
+cross-request model residency is not guaranteed.
 
-When `use_flux=true` and LightFlow is not built with `flux-native`, configure the external fallback runner first:
+To use the external fallback instead:
 
 ```bash
 export LIGHTFLOW_SD_CLI=/path/to/stable-diffusion.cpp/build/bin/sd-cli
@@ -43,8 +49,8 @@ lfw run lightflow.flux_text_to_image_router \
 Real backend smoke test:
 
 ```bash
-cargo run --manifest-path ../LightFlow/Cargo.toml --features flux-native --bin lfw -- \
-  run lightflow.flux_text_to_image_router \
+export LIGHTFLOW_FLUX_BACKEND=native
+lfw run lightflow.flux_text_to_image_router \
   -i use_flux=true \
   -i prompt='"router real FLUX smoke test, blue sphere"' \
   -i width=128 \
@@ -52,7 +58,7 @@ cargo run --manifest-path ../LightFlow/Cargo.toml --features flux-native --bin l
   -i seed=13 \
   -i steps=1 \
   -i guidance=1.0 \
-  -i output_path='"/tmp/lightflow-flux-test/router-real.png"'
+  -i output_path='"out/router-real.png"'
 ```
 
 ## Validation

@@ -8,17 +8,23 @@ version: 0.1.0
 
 Use `lightflow.flux_preview_text_to_image` as a deterministic preview fallback for tests and low-cost pipeline checks.
 
+The source definition now uses the canonical
+`workflow! { name, description, ... }` form. This source-only DSL migration
+does not change execution behavior or the input/output contract below.
+
 ## Workflow
 
 - Workflow id: `lightflow.flux_preview_text_to_image`
 - Inputs: `use_flux`, `prompt`, `negative`, `width`, `height`, `seed`, `output_path`.
 - Outputs: `image`, `image_path`.
-- Built-in runtime: `lightflow.image.generate` with engine `builtin.preview.v1`.
+- Package-owned runtime: `lightflow.image.generate` with engine `runner.v1`.
 - Node Schema: output ports are `image` artifacts; width and height include editor ranges; `use_flux` is kept for router compatibility.
 
 ## Runtime
 
-Use this workflow for deterministic offline checks. It does not require synced FLUX models and should not be treated as quality-equivalent to the real FLUX runtime.
+Use this workflow for deterministic offline checks. The workflow package owns
+the PNG generator, so the host has no preview-image callback. It does not
+require synced FLUX models and is not quality-equivalent to a real FLUX backend.
 
 ## Usage
 

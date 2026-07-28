@@ -8,5 +8,13 @@ repository = "https://github.com/lightjunction/lightflow-flux"
 keywords = ["lightflow", "workflow", "flux", "image"]
 categories = ["development-tools"]
 
+[package.metadata.lightflow]
+runner = "lightflow-flux-preview-text-to-image-runner"
+
+[[bin]]
+name = "lightflow-flux-preview-text-to-image-runner"
+path = "src/bin/runner.rs"
+
 [dependencies]
 lightflow = { workspace = true }
+lightflow-flux-runtime = { workspace = true }
