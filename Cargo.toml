@@ -3,6 +3,6 @@ resolver = "3"
 members = ["native/api", "native/sys", "runtime", "workflows/*"]
 
 [workspace.dependencies]
-lightflow = { version = "0.1.4", path = "../..", default-features = false }
+lightflow = { version = "0.2.0", path = "../..", default-features = false }
 lightflow-flux-runtime = { version = "0.1.0", path = "runtime" }
 png = "0.18.1"
