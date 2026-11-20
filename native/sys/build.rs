@@ -46,6 +46,8 @@ fn main() {
     let generated = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         bindgen::Builder::default()
             .header("wrapper.h")
+            // Preserve header size_t typedefs instead of Clang builtin signatures.
+            .clang_arg("-fno-builtin")
             .clang_arg("-I./stable-diffusion.cpp")
             .clang_arg("-I./stable-diffusion.cpp/ggml/include")
             .layout_tests(false)
