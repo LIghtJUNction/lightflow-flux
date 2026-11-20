@@ -14,3 +14,13 @@ LightFlow packages a FLUX-only build of `stable-diffusion.cpp`.
 
 The upstream `stable-diffusion.cpp/LICENSE`, `ggml/LICENSE`, and
 `thirdparty/LICENSE.darts_clone.txt` files are part of the crate.
+
+## C header bindings
+
+Bindgen parses the C headers with `-fno-builtin` so the declared `size_t`
+parameters and return values keep their `usize` representation. Clang builtin
+prototypes otherwise become fixed-width integers for `memcpy`, `memmove`,
+`memset`, `memcmp`, `strlen`, and `bcmp`, which trigger
+the `suspicious_runtime_symbol_definitions` lint with `-D warnings`. The bundled fallback bindings
+use the same `usize` signatures. This option applies only to header parsing;
+the native CMake build keeps its existing compiler optimization settings.
